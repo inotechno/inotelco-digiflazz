@@ -171,9 +171,19 @@ export default function AdminDashboardPage() {
                                     <span className="text-xs font-black uppercase">Connected</span>
                                 </div>
                             </div>
-                            <div className="px-4 py-2 bg-white/10 rounded-2xl backdrop-blur-md border border-white/5">
-                                <p className="text-[8px] font-black text-slate-400 uppercase tracking-tighter mb-1">Antrian Webhook</p>
-                                <span className="text-xs font-black uppercase">Normal</span>
+                            <div className="px-4 py-2 bg-white/10 rounded-2xl backdrop-blur-md border border-white/5 relative group cursor-pointer" onClick={() => {
+                                if (stats?.serverIp) {
+                                    navigator.clipboard.writeText(stats.serverIp);
+                                    toast.success("IP tersalin ke clipboard!");
+                                }
+                            }}>
+                                <p className="text-[8px] font-black text-slate-400 uppercase tracking-tighter mb-1">Server IP Address</p>
+                                <span className="text-xs font-black uppercase text-blue-300 hover:text-white transition-colors">
+                                    {statsLoading ? "Mengecek..." : (stats?.serverIp || "Tidak diketahui")}
+                                </span>
+                                <div className="absolute -top-3 -right-3 w-6 h-6 bg-blue-500 text-white rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
+                                    <span className="text-[8px] font-black">Copy</span>
+                                </div>
                             </div>
                         </div>
                     </div>

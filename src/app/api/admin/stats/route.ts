@@ -46,6 +46,16 @@ export async function GET() {
       prisma.deposit.count({ where: { status: "PENDING" } })
     ]);
 
+    // Ambil IP Server Vercel secara realtime
+    let serverIp = "Tidak diketahui";
+    try {
+      const ipRes = await fetch("https://api.ipify.org?format=json");
+      const ipData = await ipRes.json();
+      serverIp = ipData.ip;
+    } catch (e) {
+      console.error("Gagal mendapatkan IP server:", e);
+    }
+
     return NextResponse.json({
       today: {
         sales: Number(transactionsToday._sum.priceSell || 0),
@@ -66,7 +76,8 @@ export async function GET() {
       })),
       totalUsers,
       totalUserBalance: Number(totalBalance._sum.balance || 0),
-      pendingDepositsCount: pendingDeposits
+      pendingDepositsCount: pendingDeposits,
+      serverIp // Ditambahkan
     });
   } catch (error) {
     console.error("Stats API Error:", error);
