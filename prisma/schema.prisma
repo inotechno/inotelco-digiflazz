@@ -1,0 +1,133 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum Role {
+  ADMIN
+  MEMBER
+  RESELLER
+}
+
+enum TransactionStatus {
+  PENDING
+  SUCCESS
+  FAILED
+  PROCESSING
+}
+
+enum MutationType {
+  DEBIT
+  CREDIT
+}
+
+model User {
+  id            String            @id @default(cuid())
+  email         String            @unique
+  name          String?
+  password      String
+  pin           String            @default("123456")
+  role          Role              @default(MEMBER)
+  balance       Decimal           @default(0) @db.Decimal(15, 2)
+  createdAt     DateTime          @default(now())
+  updatedAt     DateTime          @updatedAt
+  
+  mutations     BalanceMutation[]
+  transactions  Transaction[]
+  deposits      Deposit[]
+  logs          SystemLog[]
+}
+
+model BalanceMutation {
+  id            String       @id @default(cuid())
+  userId        String
+  user          User         @relation(fields: [userId], references: [id])
+  type          MutationType
+  amount        Decimal      @db.Decimal(15, 2)
+  beginningBalance Decimal   @db.Decimal(15, 2)
+  endingBalance   Decimal    @db.Decimal(15, 2)
+  description   String
+  createdAt     DateTime     @default(now())
+
+  @@index([userId])
+}
+
+model Transaction {
+  id            String            @id @default(cuid())
+  userId        String
+  user          User              @relation(fields: [userId], references: [id])
+  refId         String            @unique // ID dari Digiflazz
+  customerNo    String
+  sku           String
+  product       Product           @relation(fields: [sku], references: [sku])
+  productName   String
+  priceCost     Decimal           @db.Decimal(15, 2)
+  priceSell     Decimal           @db.Decimal(15, 2)
+  profit        Decimal           @db.Decimal(15, 2)
+  status        TransactionStatus @default(PENDING)
+  sn            String?           // Serial Number / Token
+  message       String?
+  createdAt     DateTime          @default(now())
+  updatedAt     DateTime          @updatedAt
+
+  @@index([userId])
+  @@index([refId])
+}
+
+model Deposit {
+  id            String            @id @default(cuid())
+  userId        String
+  user          User              @relation(fields: [userId], references: [id])
+  method        String
+  amount        Decimal           @db.Decimal(15, 2)
+  status        TransactionStatus @default(PENDING)
+  reference     String            @unique // ID dari Payment Gateway
+  createdAt     DateTime          @default(now())
+  updatedAt     DateTime          @updatedAt
+
+  @@index([userId])
+}
+
+model Product {
+  sku           String   @id
+  category      String
+  brand         String
+  name          String
+  price         Decimal  @db.Decimal(15, 2)
+  buyer_product_status Boolean @default(true)
+  seller_product_status Boolean @default(true)
+  type          String   // prepaid / postpaid
+  desc          String?
+  markup_member Decimal? @db.Decimal(15, 2)
+  markup_reseller Decimal? @db.Decimal(15, 2)
+  updatedAt     DateTime @updatedAt
+  
+  transactions  Transaction[]
+
+  @@index([category])
+  @@index([brand])
+}
+
+model Config {
+  id    String @id @default(cuid())
+  key   String @unique
+  value String @db.Text
+  updatedAt DateTime @updatedAt
+}
+
+model SystemLog {
+  id        String   @id @default(cuid())
+  userId    String?
+  user      User?    @relation(fields: [userId], references: [id])
+  action    String   // LOGIN, REGISTER, UPDATE_CONFIG, CHANGE_PIN, etc.
+  details   String   @db.Text
+  ipAddress String?
+  createdAt DateTime @default(now())
+
+  @@index([userId])
+  @@index([action])
+}

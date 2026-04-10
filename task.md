@@ -1,0 +1,21 @@
+# Task List: InoTelco PWA Development
+
+- `[/]` **Phase 1: Project Initialization**
+    - `[x]` Setup Next.js 15 project
+    - `[ ]` Install additional dependencies (Prisma, Redis, TanStack Query, etc.)
+    - `[ ]` Setup Tailwind CSS with Custom Tokens (Clean Design)
+    - `[ ]` Setup PWA (next-pwa, manifest, icons)
+    - `[ ]` Setup Prisma & Database
+- `[ ]` **Phase 2: Authentication & User Tiering**
+    - `[ ]` Auth system (NextAuth / Custom JWT)
+    - `[ ]` PIN Transaction system
+    - `[ ]` User Tiering (Member, Reseller) markup logic
+- `[ ]` **Phase 3: Core API Integrations**
+    - `[ ]` Digiflazz API procurement engine
+    - `[ ]` Webhook handler (Digiflazz status updates)
+    - `[ ]` Payment Gateway (Tripay/Midtrans) for automated deposit
+- `[ ]` **Phase 4: Frontend Development (Clean UI)**
+    - `[ ]` Mobile-first Dashboard
+    - `[ ]` Product Checkout flow (Operator detection)
+- `[ ]` **Phase 5: Admin Panel**
+- `[ ]` **Phase 6: Final Polish & Security**
