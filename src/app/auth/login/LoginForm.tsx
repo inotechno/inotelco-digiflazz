@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { signIn } from "next-auth/react";
+import { signIn, getSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 import { ArrowRight, Lock, Mail, Eye, EyeOff } from "lucide-react";
@@ -29,7 +29,12 @@ export default function LoginForm() {
         toast.error(res.error);
       } else {
         toast.success("Login Berhasil");
-        router.push("/");
+        const session = await getSession();
+        if ((session?.user as any)?.role === "ADMIN") {
+          router.push("/admin/stats");
+        } else {
+          router.push("/");
+        }
         router.refresh();
       }
     } catch (error) {
