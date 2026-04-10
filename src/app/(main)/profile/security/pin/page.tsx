@@ -26,7 +26,7 @@ const PinInput = ({ value, onChange, label, sub, show }: any) => {
   };
 
   useEffect(() => {
-    const firstEmpty = digits.findIndex(d => d === "");
+    const firstEmpty = digits.findIndex((d: string) => d === "");
     const targetIndex = firstEmpty === -1 ? 0 : firstEmpty;
     inputRefs.current[targetIndex]?.focus();
   }, []);
