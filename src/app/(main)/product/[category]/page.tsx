@@ -61,7 +61,7 @@ export default function CategoryPage({ params }: { params: Promise<{ category: s
       });
 
       toast.success(res.data.message);
-      router.push("/");
+      router.push("/history");
       router.refresh();
     } catch (error: any) {
       toast.error(error.response?.data?.message || "Gagal memproses transaksi");
