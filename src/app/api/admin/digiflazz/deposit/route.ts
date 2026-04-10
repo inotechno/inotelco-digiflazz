@@ -1,3 +1,4 @@
+export const dynamic = 'force-dynamic';
 import { NextResponse } from "next/server";
 import { digiflazz } from "@/lib/digiflazz";
 import { getServerSession } from "next-auth/next";
