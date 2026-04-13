@@ -2,7 +2,7 @@ import { withAuth } from "next-auth/middleware";
 import { NextResponse } from "next/server";
 
 export default withAuth(
-  function middleware(req) {
+  function proxy(req) {
     if (req.nextUrl.pathname === "/" && req.nextauth.token?.role === "ADMIN") {
       return NextResponse.redirect(new URL("/admin/stats", req.url));
     }

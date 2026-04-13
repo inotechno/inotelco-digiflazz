@@ -33,15 +33,23 @@ export async function POST(req: Request) {
 
     let updatedCount = 0;
 
-    // 2. Cek status ke Digiflazz satu per satu
+    // 2. Cek status ke Digiflazz satu per satu (dengan delay sesuai rekomendasi Digiflazz)
+    console.log(`[Sync] Ditemukan ${pendingTransactions.length} transaksi PENDING`);
+    const debugResults: any[] = [];
+
     for (const tx of pendingTransactions) {
       try {
-        const dfResponse = await digiflazz.checkTransaction(tx.refId, tx.sku, tx.customerNo);
-        const dfData = dfResponse.data;
+        console.log(`[Sync] Cek status refId: ${tx.refId}, sku: ${tx.sku}`);
+        const dfData = await digiflazz.checkTransaction(tx.refId, tx.sku, tx.customerNo);
+        console.log(`[Sync] Response ${tx.refId}:`, JSON.stringify(dfData));
+
+        const entry: any = { refId: tx.refId, status: dfData?.status, rc: dfData?.rc, raw: dfData };
+        debugResults.push(entry);
 
         if (dfData && dfData.rc) {
           const finalStatus = dfData.status === 'Sukses' ? 'SUCCESS' : 
                              dfData.status === 'Gagal' ? 'FAILED' : 'PENDING';
+          console.log(`[Sync] ${tx.refId} → finalStatus: ${finalStatus} (df.status=${dfData.status}, rc=${dfData.rc})`);
           
           if (finalStatus !== 'PENDING') {
             await prisma.$transaction(async (prismaTx) => {
@@ -79,14 +87,20 @@ export async function POST(req: Request) {
             updatedCount++;
           }
         }
-      } catch (err) {
-        console.error(`Sync error for ${tx.refId}:`, err);
+      } catch (err: any) {
+        console.error(`[Sync] Error untuk ${tx.refId}:`, err?.message || err);
+        debugResults.push({ refId: tx.refId, error: err?.message });
       }
+
+      // Delay 1.5 detik antar request — sesuai rekomendasi Digiflazz
+      // (jangan panggil API yang sama dalam interval < 1 menit)
+      await new Promise(resolve => setTimeout(resolve, 1500));
     }
 
     return NextResponse.json({ 
       message: `Sinkronisasi selesai. ${updatedCount} transaksi diperbarui.`,
-      updatedCount 
+      updatedCount,
+      debug: debugResults // sementara untuk diagnosis
     });
 
   } catch (error: any) {

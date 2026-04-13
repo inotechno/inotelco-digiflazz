@@ -239,14 +239,18 @@ export const digiflazz = {
     const sign = crypto.createHash('md5').update(username + key + ref_id).digest('hex');
 
     try {
+      // Cek status = topup ulang dengan ref_id yang sama (sesuai docs Digiflazz)
+      // Field "testing" valid dan diperlukan untuk dev mode (sesuai test case docs)
       const response = await digiflazzClient.post(`${DIGIFLAZZ_URL}/transaction`, {
         username: username,
         buyer_sku_code: sku,
         customer_no: customer_no,
         ref_id: ref_id,
+        testing: process.env.NODE_ENV !== 'production',
         sign: sign,
       });
-      return response.data;
+      // Response dibungkus { data: { status, rc, sn, ... } } — ambil inner data
+      return response.data?.data ?? response.data;
     } catch (error: any) {
       console.error('Digiflazz Status Check Error:', error.response?.data || error.message);
       throw error;
